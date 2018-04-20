@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"      
+ "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+ <mapper namespace="com.sdtz.adlet.dao.StoreCommentDao">
+ 	<!-- 发布对某个事业的留言-->
+	<insert id="publishStoreComment" parameterType="com.sdtz.adlet.entity.StoreComment">
+		INSERT INTO storecomment 
+		     (storeid,content,userid,addtime,icon,nickname)
+		VALUES
+		     (#{storeid},#{content},#{userid},#{addtime},#{icon},#{nickname})
+	</insert>
+	<!-- 查询对某事业的留言 -->
+	<select id="getStoreCommentsById" parameterType="int" resultType="com.sdtz.adlet.entity.StoreComment">
+		SELECT id,content,userid,addtime,icon,nickname,commentnumber,goodnumber 
+		FROM storecomment
+		WHERE  storeid=#{storeid}
+	</select>
+	<!-- 获取我的事业的留言的回复列表 -->
+	<select id="getStoreCommentReplys" parameterType="int" resultType="com.sdtz.adlet.entity.StoreCommentReply">
+		SELECT id,content,userid,addtime,icon,nickname
+		FROM storecommentreply
+		WHERE commentid=#{commentid}
+	</select>
+	<!-- 对某事业的留言进行回复 -->
+	<insert id="publishStoreCommentReply" parameterType="com.sdtz.adlet.entity.StoreComment">
+		INSERT INTO storecommentreply
+		     (content,userid,addtime,icon,nickname,commentid)
+		VALUES
+		     (#{content},#{userid},#{addtime},#{icon},#{nickname},#{commentid})
+	</insert>
+	<!-- 修改留言的回复数量 -->
+	<update id="updateStoreCommentNumber" parameterType="int">
+		UPDATE storecomment 
+			SET commentnumber=commentnumber+1
+		WHERE id=#{id}
+	</update>
+	
+	<!-- 修改留言的回复数量（减1） -->
+	<update id="reduceStoreCommentNumber" parameterType="int">
+		UPDATE storecomment 
+			SET commentnumber=commentnumber-1
+		WHERE id=#{id}
+	</update>
+	
+	<!-- 对某条留言进行点赞 -->
+	<update id="updateCommentGoodnumber" parameterType="int">
+		UPDATE storecomment 
+		SET goodnumber=goodnumber+1
+		WHERE id=#{id}
+	</update>
+	<!-- 根据评论的用户id查询点赞 -->
+	<select id="getStoregoodByUserId" parameterType="map" resultType="com.sdtz.adlet.entity.Storegood">
+		SELECT *
+		FROM storegood
+		WHERE userid=#{userid} AND commentid=#{commentid}
+	</select>
+	<!-- 添加一条点赞 -->
+	<insert id="addStoregood" parameterType="com.sdtz.adlet.entity.Storegood">
+		INSERT INTO storegood
+			(storeid,userid,icon,commentid)
+		VALUES
+		     (#{storeid},#{userid},#{icon},#{commentid})
+	</insert>
+	<!-- 删除某条留言 -->
+	<delete id="deleteCommentById" parameterType="int">
+		DELETE FROM storecomment 
+		WHERE id=#{commentid}
+	</delete>
+	<!-- 删除某条留言的回复留言 -->
+	<delete id="deleteCommentReplys" parameterType="int">
+		DELETE FROM storecommentreply 
+		WHERE commentid=#{commentid}
+	</delete>
+	<!-- 删除某条留言的某条回复 -->
+	<delete id="deleteCommentReply" parameterType="int">
+		DELETE FROM storecommentreply 
+		WHERE id=#{id}
+	</delete>
+ </mapper>

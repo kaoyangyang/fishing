@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"      
+ "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+ <mapper namespace="com.sdtz.adlet.dao.DailRecordDao">
+ 	<!-- 记录用户点击电话按钮 -->
+	<insert id="recordDail" parameterType="com.sdtz.adlet.entity.DailRecord">
+		INSERT INTO dailrecord 
+			(userid,telnumber,calltime)
+	    VALUES
+			(#{userid},#{telnumber},#{calltime})
+	</insert>
+ </mapper>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"      
+ "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<mapper namespace="com.sdtz.adlet.dao.ManagerDao">
+    <!-- 普通管理员获取其管理区域的审核广告 -->
+    <select id="getMyAreaNeedCheckAd"  parameterType="String" resultType="com.sdtz.adlet.entity.Ad">
+    	SELECT id,user_id,title,content,ispush,pull_time,photos,publishAreaName
+    	FROM ad WHERE belongarea=#{acount} AND ischecked=0
+    </select>
+    <!-- 超级管理员获取全国所有的需要审核的广告 -->
+    <select id="getNeedCheckAd" resultType="com.sdtz.adlet.entity.Ad">
+    	SELECT id,user_id,title,content,ispush,pull_time,photos,publishAreaName 
+    	FROM ad WHERE ischecked=0
+    </select>
+    <select id="getManagerInfoByAcount" parameterType="com.sdtz.adlet.entity.Manager" resultType="com.sdtz.adlet.entity.Manager">
+    	SELECT * from manager where acount=#{acount}
+    </select>
+    <!-- 广告审核通过修改其状态为1 -->
+    <update id="updateAdStatusOk" parameterType="int">
+    	UPDATE ad set status=1,ischecked=1 where id=#{id}
+    </update>
+    <!-- 广告审核不通过将其状态改为0 -->
+    <update id="updateAdStatusBad" parameterType="int">
+    	UPDATE ad set status=0,ischecked=1 where id=#{id}
+    </update>
+</mapper>

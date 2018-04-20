@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"      
+ "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<mapper namespace="com.sdtz.adlet.dao.AdDao">
+    <resultMap type="com.sdtz.adlet.entity.Ad" id="adBean">
+		<result column="user_id" property="user_id" />
+		<result column="title" property="title" />
+		<result column="content" property="content" />
+		<result column="address" property="address" />
+		<result column="tel" property="tel" />
+		<result column="photos" property="photos" />
+	
+	    <!-- 一对一的关系 -->  
+	    <association property="user" javaType="com.sdtz.adlet.entity.User">
+	        <id property="id" column="id"/>
+	        <result property="phone" column="phone"/>
+	        <result property="icon" column="icon"/>
+	        <result property="nickname" column="nickname"/>
+	    </association>
+	    <!-- 一对多的关系 
+	    <collection property="comment" javaType="com.sdtz.adlet.entity.Comment">
+	    	<id property="id" column="id"/>
+	        <result property="content" column="content"/>
+	        <result property="addtime" column="addtime"/>
+	        <result property="icon" column="icon"/>
+	        <result property="nickname" column="nickname"/>
+	        <result property="commentnumber" column="commentnumber"/>
+	        <result property="goodnumber" column="goodnumber"/>
+	    </collection>
+	    -->
+    </resultMap> 
+    <!-- 获取广告的详情 -->
+    <select id="getAdInfo" parameterType="int" resultMap="adBean">
+		SELECT a.user_id,a.title,a.content,a.address,a.tel,a.photos,u.id,u.phone,u.icon,u.nickname from ad a,user u where a.user_id=u.id and a.id=#{id}
+	</select>
+	
+	<!-- 贴广告 -->
+	<insert id="save" parameterType="com.sdtz.adlet.entity.Ad">
+		INSERT INTO ad 
+			(user_id,title,content,photos,address,lng,lat,province,city,district,type,status,secondtype,secondtype1,secondtype2,secondtype3,secondtype4,tel,pull_time,nickname,icon,town,country,ad_id,ischecked,belongArea,publishAreaName,agestart,ageend,sex,job_id,pushmethod,radius,ispush)
+		VALUES 
+			(#{user_id},#{title},#{content},#{photos},#{address},#{lng},#{lat},#{province},#{city},
+			#{district},#{type},#{status},#{secondtype},#{secondtype1},#{secondtype2},#{secondtype3},#{secondtype4},#{tel},#{pull_time},#{nickname},#{icon},#{town},#{country},#{ad_id},#{ischecked},#{belongArea},#{publishAreaName},#{agestart},#{ageend},#{sex},#{job_id},#{pushmethod},#{radius},#{ispush})
+	</insert>
+	<!-- 获取广告列表国家级 -->
+	<select id="getAdsByCountry" parameterType="map" resultType="com.sdtz.adlet.entity.Ad">
+		SELECT id,user_id,title,content,address,tel,photos,clicks,pull_time,nickname,icon,type,secondtype
+		FROM ad WHERE status=1 order by pull_time desc LIMIT #{pageIndex},#{pageSize}
+	</select>
+	<!-- 获取广告列表省级 -->
+	<select id="getAdsByProvince" parameterType="map" resultType="com.sdtz.adlet.entity.Ad">
+		SELECT id,user_id,title,content,address,tel,photos,clicks,pull_time,nickname,icon,type,secondtype
+		FROM ad WHERE province=#{province} AND status=1 order by pull_time desc LIMIT #{pageIndex},#{pageSize}
+	</select>
+	<!-- 获取广告列表市级 -->
+	<select id="getAdsByCity" parameterType="map" resultType="com.sdtz.adlet.entity.Ad">
+		SELECT id,user_id,title,content,address,tel,photos,clicks,pull_time,nickname,icon,type,secondtype
+		FROM ad WHERE province=#{province} 
+		AND city=#{city} AND status=1 order by pull_time desc LIMIT #{pageIndex},#{pageSize}
+	</select>
+	<!-- 获取广告列表县级 -->
+	<select id="getAdsByDistrict" parameterType="map" resultType="com.sdtz.adlet.entity.Ad">
+		SELECT id,user_id,title,content,address,tel,photos,clicks,pull_time,nickname,icon,type,secondtype
+		FROM ad WHERE province=#{province} 
+		AND city=#{city} 
+		AND district=#{district} 
+		AND status=1 
+		order by pull_time desc LIMIT #{pageIndex},#{pageSize}
+	</select>
+	<!-- 获取广告列表镇级 -->
+	<select id="getAdsByTown" parameterType="map" resultType="com.sdtz.adlet.entity.Ad">
+		SELECT id,user_id,title,content,address,tel,photos,clicks,pull_time,nickname,icon,type,secondtype
+		FROM ad WHERE province=#{province} 
+		AND city=#{city} 
+		AND district=#{district} 
+		AND town=#{town} AND status=1 order by pull_time desc LIMIT #{pageIndex},#{pageSize}
+	</select>
+	<!-- 获取广告列表国家级分类型-->
+	<select id="getAdsByCountryType" parameterType="map" resultType="com.sdtz.adlet.entity.Ad">
+		SELECT id,user_id,title,content,address,tel,photos,clicks,pull_time,nickname,icon,type,secondtype
+		FROM ad WHERE type=#{type} 
+		AND if(#{secondtype}=0,1=1,(secondtype=#{secondtype} or secondtype1=#{secondtype} or secondtype2=#{secondtype} or secondtype3=#{secondtype} or secondtype4=#{secondtype}))   
+		AND status=1 order by pull_time desc LIMIT #{pageIndex},#{pageSize}
+	</select>
+	<!-- 获取广告列表省级分类型 -->
+	<select id="getAdsByProvinceType" parameterType="map" resultType="com.sdtz.adlet.entity.Ad">
+		SELECT id,user_id,title,content,address,tel,photos,clicks,pull_time,nickname,icon,type,secondtype
+		FROM ad WHERE type=#{type} 
+		AND if(#{secondtype}=0,1=1,(secondtype=#{secondtype} or secondtype1=#{secondtype} or secondtype2=#{secondtype} or secondtype3=#{secondtype} or secondtype4=#{secondtype}))  
+		AND province=#{province} 
+		AND status=1 order by pull_time desc LIMIT #{pageIndex},#{pageSize}
+	</select>
+	<!-- 获取广告列表市级分类型 -->
+	<select id="getAdsByCityType" parameterType="map" resultType="com.sdtz.adlet.entity.Ad">
+		SELECT id,user_id,title,content,address,tel,photos,clicks,pull_time,nickname,icon,type,secondtype
+		FROM ad WHERE province=#{province} 
+		AND type=#{type} 
+		AND if(#{secondtype}=0,1=1,(secondtype=#{secondtype} or secondtype1=#{secondtype} or secondtype2=#{secondtype} or secondtype3=#{secondtype} or secondtype4=#{secondtype}))  
+		AND city=#{city} AND status=1 order by pull_time desc LIMIT #{pageIndex},#{pageSize}
+	</select>
+	<!-- 获取广告列表县级 分类型-->
+	<select id="getAdsByDistrictType" parameterType="map" resultType="com.sdtz.adlet.entity.Ad">
+		SELECT id,user_id,title,content,address,tel,photos,clicks,pull_time,nickname,icon,type,secondtype
+		FROM ad WHERE province=#{province} 
+		AND type=#{type} 
+		AND city=#{city} 
+		AND district=#{district} 
+		AND if(#{secondtype}=0,1=1,(secondtype=#{secondtype} or secondtype1=#{secondtype} or secondtype2=#{secondtype} or secondtype3=#{secondtype} or secondtype4=#{secondtype}))  
+		AND status=1 order by pull_time desc LIMIT #{pageIndex},#{pageSize}
+	</select>
+	<!-- 获取广告列表镇级分类型 -->
+	<select id="getAdsByTownType" parameterType="map" resultType="com.sdtz.adlet.entity.Ad">
+		SELECT id,user_id,title,content,address,tel,photos,clicks,pull_time,nickname,icon,type,secondtype
+		FROM ad WHERE province=#{province} 
+		AND  type=#{type} 
+		AND city=#{city} 
+		AND district=#{district} 
+		AND if(#{secondtype}=0,1=1,(secondtype=#{secondtype} or secondtype1=#{secondtype} or secondtype2=#{secondtype} or secondtype3=#{secondtype} or secondtype4=#{secondtype}))  
+		AND town=#{town} AND status=1 order by pull_time desc LIMIT #{pageIndex},#{pageSize}
+	</select>
+	<!-- 获取广告列表手机自动获取经纬度进行定位 -->
+	<select id="getAdsAuto" parameterType="map" resultType="com.sdtz.adlet.entity.Ad">
+		SELECT id,user_id,title,content,address,tel,photos,clicks,pull_time,nickname,icon,type,secondtype
+		FROM ad where ((country=#{country} and province='') or (province=#{province} and city='') or (city=#{city} and district='') or (district=#{district}))     
+		AND status=1 order by pull_time desc LIMIT #{pageIndex},#{pageSize}
+	</select>
+	<!-- 获取广告列表手机自动获取经纬度进行定位 -->
+	<select id="getAdsAutoType" parameterType="map" resultType="com.sdtz.adlet.entity.Ad">
+		SELECT id,user_id,title,content,address,tel,photos,clicks,pull_time,nickname,icon,type,secondtype
+		FROM ad where type=#{type} and ((country=#{country} and province='') or (province=#{province} and city='') or (city=#{city} and district='') or (district=#{district}))      
+		AND if(#{secondtype}=0,1=1,(secondtype=#{secondtype} or secondtype1=#{secondtype} or secondtype2=#{secondtype} or secondtype3=#{secondtype} or secondtype4=#{secondtype}))  
+		AND status=1 order by pull_time desc LIMIT #{pageIndex},#{pageSize}
+	</select>
+	<!-- 通过关键字检索广告 if (#{district}='-1',province=#{province} and city=#{city},province=#{province} and city=#{city} and district=#{district}) 
+		if (#{city}='-1',province=#{province},province=#{province} and city=#{city}) 
+		if (#{province}='-1',country=#{country},province=#{province})-->
+	<select id="getAdsByKeyword" parameterType="map" resultType="com.sdtz.adlet.entity.Ad">
+		SELECT id,user_id,title,content,address,tel,photos,clicks,pull_time,nickname,icon,type,secondtype
+		FROM ad WHERE if(#{type}=1,1=1,type=#{type}) AND if(#{secondtype}=0,1=1,(secondtype=#{secondtype} or secondtype1=#{secondtype} or secondtype2=#{secondtype} or secondtype3=#{secondtype} or secondtype4=#{secondtype})) 
+		AND if (#{town}='-1',province=#{province} and city=#{city} and district=#{district} ,province=#{province} and city=#{city} and district=#{district} and town=#{town}) 
+		and if (#{district}='-1',province=#{province} and city=#{city},province=#{province} and city=#{city} and district=#{district}) 
+		and if (#{city}='-1',province=#{province},province=#{province} and city=#{city}) 
+		and if (#{province}='-1',country=#{country},province=#{province}) 
+		AND (title like '%${keyword}%') 
+		AND status=1 order by pull_time desc LIMIT #{pageIndex},#{pageSize}
+	</select>
+	<select id="getCountryAdsByKeyword" parameterType="map" resultType="com.sdtz.adlet.entity.Ad">
+		SELECT id,user_id,title,content,address,tel,photos,clicks,pull_time,nickname,icon,type,secondtype
+		FROM ad where if(#{type}=1,1=1,type=#{type}) 
+		AND if(#{secondtype}=0,1=1,(secondtype=#{secondtype} or secondtype1=#{secondtype} or secondtype2=#{secondtype} or secondtype3=#{secondtype} or secondtype4=#{secondtype})) 
+		AND (title like '%${keyword}%') 
+		AND status=1 order by pull_time desc LIMIT #{pageIndex},#{pageSize}
+	</select>
+	<select id="getProvinceAdsByKeyword" parameterType="map" resultType="com.sdtz.adlet.entity.Ad">
+		SELECT id,user_id,title,content,address,tel,photos,clicks,pull_time,nickname,icon,type,secondtype
+		FROM ad where if(#{type}=1,1=1,type=#{type}) 
+		AND if(#{secondtype}=0,1=1,(secondtype=#{secondtype} or secondtype1=#{secondtype} or secondtype2=#{secondtype} or secondtype3=#{secondtype} or secondtype4=#{secondtype})) 
+		AND province=#{province} 
+		AND (title like '%${keyword}%') 
+		AND status=1 order by pull_time desc LIMIT #{pageIndex},#{pageSize}
+	</select>
+	<select id="getCityAdsByKeyword" parameterType="map" resultType="com.sdtz.adlet.entity.Ad">
+		SELECT id,user_id,title,content,address,tel,photos,clicks,pull_time,nickname,icon,type,secondtype
+		FROM ad where if(#{type}=1,1=1,type=#{type}) 
+		AND if(#{secondtype}=0,1=1,(secondtype=#{secondtype} or secondtype1=#{secondtype} or secondtype2=#{secondtype} or secondtype3=#{secondtype} or secondtype4=#{secondtype})) 
+		AND province=#{province} 
+		AND city=#{city} 
+		AND (title like '%${keyword}%') 
+		AND status=1 order by pull_time desc LIMIT #{pageIndex},#{pageSize}
+	</select>
+	<select id="getDistrictAdsByKeyword" parameterType="map" resultType="com.sdtz.adlet.entity.Ad">
+		SELECT id,user_id,title,content,address,tel,photos,clicks,pull_time,nickname,icon,type,secondtype
+		FROM ad where if(#{type}=1,1=1,type=#{type}) 
+		AND if(#{secondtype}=0,1=1,(secondtype=#{secondtype} or secondtype1=#{secondtype} or secondtype2=#{secondtype} or secondtype3=#{secondtype} or secondtype4=#{secondtype})) 
+		AND province=#{province} 
+		AND city=#{city} 
+		AND district=#{district}
+		AND (title like '%${keyword}%') 
+		AND status=1 order by pull_time desc LIMIT #{pageIndex},#{pageSize}
+	</select>
+	<select id="getTownAdsByKeyword" parameterType="map" resultType="com.sdtz.adlet.entity.Ad">
+		SELECT id,user_id,title,content,address,tel,photos,clicks,pull_time,nickname,icon,type,secondtype
+		FROM ad where if(#{type}=1,1=1,type=#{type}) 
+		AND if(#{secondtype}=0,1=1,(secondtype=#{secondtype} or secondtype1=#{secondtype} or secondtype2=#{secondtype} or secondtype3=#{secondtype} or secondtype4=#{secondtype})) 
+		AND province=#{province} 
+		AND city=#{city} 
+		AND district=#{district}
+		AND town=#{town}
+		AND (title like '%${keyword}%') 
+		AND status=1 order by pull_time desc LIMIT #{pageIndex},#{pageSize}
+	</select>
+	<!-- 获取某条广告详情 -->
+	<select id="getAdById" parameterType="int" resultType="com.sdtz.adlet.entity.Ad">
+		SELECT * 
+		FROM ad WHERE id=#{ad_id} 
+	</select>
+	<!-- 修改广告的浏览次数 -->
+	<update id="recordScan" parameterType="int">
+		UPDATE ad set clicks=#{clicks} where id=#{ad_id}
+	</update>
+	<!-- 发布对某条广告的评论 -->
+	<insert id="publishAdComment" parameterType="com.sdtz.adlet.entity.Comment">
+		INSERT INTO comment 
+		     (adid,content,userid,addtime,icon,nickname)
+		VALUES
+		     (#{adid},#{content},#{userid},#{addtime},#{icon},#{nickname})
+	</insert>
+	<!-- 查询对某条广告的评论 -->
+	<select id="getCommentsByAdId" parameterType="int" resultType="com.sdtz.adlet.entity.Comment">
+		SELECT id,content,userid,addtime,icon,nickname,commentnumber,goodnumber 
+		FROM comment
+		WHERE  ad_id=#{adid}
+	</select>
+	<!-- 对某条评论进行回复 -->
+	<insert id="publishAdCommentReply" parameterType="com.sdtz.adlet.entity.Comment">
+		INSERT INTO comment
+		     (adid,content,userid,addtime,icon,nickname,commentid)
+		VALUES
+		     (#{adid},#{content},#{userid},#{addtime},#{icon},#{nickname},#{commentid})
+	</insert>
+	<!-- 修改评论的回复数量 -->
+	<update id="updateAdCommentNumber" parameterType="int">
+		UPDATE comment 
+			SET commentnumber=commentnumber+1
+		WHERE id=#{id}
+	</update>
+	<!-- 评论的回复减1 -->
+	<update id="reduceAdCommentNumber" parameterType="int">
+		UPDATE comment 
+			SET commentnumber=commentnumber-1
+		WHERE id=#{id}
+	</update>
+	<!-- 获取评论的回复列表 -->
+	<select id="getCommentReplys" parameterType="int" resultType="com.sdtz.adlet.entity.Comment">
+		SELECT id,content,userid,addtime,icon,nickname
+		FROM comment
+		WHERE commentid=#{commentid}
+	</select>
+	<!-- 对某条评论进行点赞 -->
+	<update id="updateCommentGoodnumber" parameterType="int">
+		UPDATE comment 
+		SET goodnumber=goodnumber+1
+		WHERE id=#{id}
+	</update>
+	<!-- 根据评论的用户id查询点赞 -->
+	<select id="getAddgoodByUserId" parameterType="int" resultType="com.sdtz.adlet.entity.Addgood">
+		SELECT *
+		FROM addgood
+		WHERE userid=#{userid}
+	</select>
+	<!-- 添加一条点赞 -->
+	<insert id="addAddgood" parameterType="com.sdtz.adlet.entity.Addgood">
+		INSERT INTO addgood
+			(adid,userid,icon,commentid)
+		VALUES
+		     (#{adid},#{userid},#{icon},#{commentid})
+	</insert>
+	<!-- 删除自己的评论 -->
+	<delete id="deleteCommentById" parameterType="int">
+		DELETE FROM comment 
+		WHERE id=#{commentid}
+	</delete>
+	
+	<!-- 删除某条评论的回复 -->
+	<delete id="deleteReplys" parameterType="int">
+		DELETE FROM comment
+		WHERE commentid=#{commentid}
+	</delete>
+</mapper>

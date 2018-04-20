@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"      
+ "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<mapper namespace="com.sdtz.adlet.dao.AdTypeDao">
+    <!-- 查询 -->
+	<select id="getFirstAdType" resultType="com.sdtz.adlet.entity.AdType">
+		SELECT * FROM adtype WHERE secondtype=0  ORDER BY firsttype;
+	</select>
+	<!-- 通过主类型查询次类 -->
+	<select id="getSecondAdType" parameterType="int" resultType="com.sdtz.adlet.entity.AdType">
+		SELECT * FROM adtype WHERE firsttype=#{firsttype} and secondtype!=0 order by secondtype
+	</select>
+</mapper>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"      
+ "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<mapper namespace="com.sdtz.adlet.dao.CodeDao">
+
+
+
+		<insert id="save" 
+		parameterType="com.sdtz.adlet.entity.Code">
+		insert into code
+			(phone,code,endtime)
+		values (#{phone},#{code},#{endtime})
+		</insert>
+		
+		<select id="findByPhone" 
+				parameterType="map"
+		resultType="com.sdtz.adlet.entity.Code">
+		select  * from code where phone=#{phone} and code=#{code} order by endtime desc limit 1
+		</select >
+</mapper>

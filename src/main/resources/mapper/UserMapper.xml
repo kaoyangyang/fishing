@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"      
+ "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<mapper namespace="com.sdtz.adlet.dao.UserDao">
+	<resultMap type="com.sdtz.adlet.entity.User" id="userBean">
+		<id property="id" column="id"/>
+		<result property="phone" column="phone"/>
+		<result property="icon" column="icon"/>
+		<result property="nickname" column="nickname"/>
+		<!-- 一对一的关系 -->
+		<association property="userLocation" javaType="com.sdtz.adlet.entity.UserLocation">
+			<id property="id" column="id"/>
+			<result column="user_id" property="user_id" />
+			<result column="lng" property="lng" />
+			<result column="lat" property="lat" />
+			<result column="time" property="time" />
+		</association>
+
+	</resultMap>
+	    <!-- 注册 -->
+		<insert id="save" parameterType="com.sdtz.adlet.entity.User">
+			INSERT INTO user (phone,login_password,created_date)
+			VALUES (#{phone},#{login_password},#{created_date})
+		</insert>
+		<!-- 长连接注册之后的用户手机号注册（实际是修改用户信息） -->
+		<update id="saveUser" parameterType="com.sdtz.adlet.entity.User">
+			UPDATE user SET phone=#{phone},login_password=#{login_password} WHERE username=#{username}
+		</update>
+		<!-- 获取用户的详细信息 -->
+		<select id="getUserInfo" parameterType="int" resultType="com.sdtz.adlet.entity.User">
+			SELECT * FROM user
+			WHERE id=#{id}
+		</select>
+		<!-- 获取余额 -->
+		<select id="getBalance" parameterType="int" resultType="com.sdtz.adlet.entity.User">
+			SELECT balance FROM user
+			WHERE id=#{id}
+		</select>
+		<!-- 修改完善个人信息 -->
+		<update id="update" parameterType="com.sdtz.adlet.entity.User">
+			update user 
+			set nickname=#{nickname},age=#{age},sex=#{sex},job_id=#{job_id},
+			province=#{province},city=#{city},district=#{district},town=#{town},areadesc=#{areadesc},
+			mydescription=#{mydescription},job_name=#{job_name},icon=#{icon} where id=#{id}
+		</update>
+		<!-- 修改完善个人信息 -->
+		<update id="updatenoicon" parameterType="com.sdtz.adlet.entity.User">
+			update user 
+			set nickname=#{nickname},age=#{age},sex=#{sex},job_id=#{job_id},
+			province=#{province},city=#{city},district=#{district},town=#{town},areadesc=#{areadesc},
+			mydescription=#{mydescription},job_name=#{job_name} where id=#{id}
+		</update>
+		<!-- 通过手机号查找用户 -->
+		<select id="findByPhone" 
+				parameterType="string"
+				resultType="com.sdtz.adlet.entity.User">
+			select * from user where phone=#{phone} limit 1
+		</select >
+		<!-- 通过手机号查找用户 -->
+		<select id="getUserInfoByPhone" parameterType="string" resultType="com.sdtz.adlet.entity.User">
+			select * from user where phone=#{phone} limit 1
+		</select >
+		<!-- 登录 -->
+		<select id="login" 
+				parameterType="map"
+				resultType="com.sdtz.adlet.entity.User">
+		select  * from user 
+		where phone=#{phone} and login_password=#{login_password} 
+		</select >
+		<!-- 删除老的登录记录 -->
+		<delete id="deleteOldLoginRecord" parameterType="string">
+			delete from user where username=#{username}
+		</delete>
+		<!-- 保存老的用户信息到新的登录记录 -->
+		<update id="saveOldLoginRecord" parameterType="com.sdtz.adlet.entity.User">
+			update user set 
+			id=#{id},email=#{email},name=#{name},phone=#{phone},login_password=#{login_password}, 
+			nickname=#{nickname},age=#{age},sex=#{sex},job_id=#{job_id},balance=#{balance},bean=#{bean}, 
+			icon=#{icon},province=#{province},city=#{city},district=#{district},town=#{town},admin_id=#{admin_id}, 
+			status=#{status},alipay=#{alipay},wepay=#{wepay},total_recharge=#{total_recharge},total_cash=#{total_cash}, 
+			job_name=#{job_name},mydescription=#{mydescription},areadesc=#{areadesc},myType=#{myType}, 
+			lng=#{lng},lat=#{lat} 
+			where username=#{username}
+		</update>
+		<!-- 获取用户自己发布的广告 -->
+		<select id="getMyAds" parameterType="map" resultType="com.sdtz.adlet.entity.Ad">
+			SELECT id,user_id,title,content,address,tel,photos,clicks,pull_time,nickname
+			FROM ad WHERE user_id=#{user_id} order by pull_time desc LIMIT #{pageIndex},#{pageSize} 
+		</select>
+		<!-- 删除自己的广告 -->
+		<delete id="deleteAd" parameterType="int">
+			DELETE FROM ad WHERE id=#{id}
+		</delete>
+		<!-- 置顶当前的广告 -->
+		<update id="pushAdTop" parameterType="int">
+			UPDATE ad set pull_time=now() where id=#{id}
+		</update>
+		<!-- 保存用户的位置信息 -->
+		<insert id="saveUserLocation" parameterType="com.sdtz.adlet.entity.UserLocation">
+			INSERT INTO user_location
+				(user_id,lng,lat,time)
+			VALUES
+				(#{user_id},#{lng},#{lat},#{time})
+		</insert>
+		<!-- 获取职业行业选择 -->
+		<select id="getJobCode" resultType="com.sdtz.adlet.entity.JobCode">
+			SELECT * FROM job
+		</select>
+		<!-- 修改用户自己定义的偏爱广告类型 -->
+		<update id="updateMyType" parameterType="com.sdtz.adlet.entity.User">
+			UPDATE user SET myType=#{myType} WHERE id=#{id}
+		</update>
+		<select id="getMyType" parameterType="int" resultType="com.sdtz.adlet.entity.User">
+			SELECT * from user where id=#{id}
+		</select>
+	<select id="findAllLocations"  resultMap="userBean">
+		SELECT * from user u,user_location ul where u.id=ul.user_id
+	</select>
+	<!-- 获取所有用户，应该使用索引 -->
+	<select id="findAllArountLocations" resultType="com.sdtz.adlet.entity.UserLocation">
+		SELECT * from user_location
+	</select>
+</mapper>

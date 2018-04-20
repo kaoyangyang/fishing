@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"      
+ "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<mapper namespace="com.sdtz.adlet.dao.StoreDao">
+	<!-- 修改我的店的详情展示 -->
+    <update id="updateStore" parameterType="com.sdtz.adlet.entity.Store">
+    	UPDATE store 
+    	SET name=#{name},lon=#{lon},lat=#{lat},address=#{address},tel=#{tel},keyword=#{keyword},photos=#{photos}
+    	WHERE storeid=#{storeid}
+    </update>
+    <!-- 创建我的店 -->
+	<insert id="createStore" parameterType="com.sdtz.adlet.entity.Store">
+		INSERT INTO store
+			(storeid)
+		VALUES 
+	    	(#{storeid})
+	</insert>
+	<!-- 查找我的店的详情 -->
+	<select id="getStore" parameterType="int" resultType="com.sdtz.adlet.entity.Store">
+		SELECT name,address,tel,keyword,icon,photos
+		FROM store
+		WHERE storeid=#{storeid}
+	</select>
+	<!-- 更换我的事业的背景照片 -->
+	<update id="updateStoreIcon" parameterType="com.sdtz.adlet.entity.Store">
+		UPDATE store 
+		SET icon=#{icon}
+		WHERE storeid=#{storeid}
+	</update>
+	
+</mapper>
